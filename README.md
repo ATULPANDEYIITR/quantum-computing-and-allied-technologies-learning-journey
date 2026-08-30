@@ -174,3 +174,46 @@ Fundamentals → Mathematics → Quantum Concepts → Quantum Computing → Algo
 ## Long-term goal
 
 To develop a comprehensive understanding of **quantum computing and allied quantum technologies**, combining mathematical foundations, theoretical concepts, programming knowledge, practical understanding, security implications, and emerging research.
+
+# Day 01: Algebra Basics
+
+## Objective
+
+Begin building the mathematical foundation required for Quantum Computing by learning the fundamental concepts of Algebra.
+
+## Topics Covered
+
+* Numbers
+* Variables
+* Basic Arithmetic Operations
+* Addition
+* Subtraction
+* Multiplication
+* Division
+* Simple Algebraic Expressions
+* Powers and Exponents
+
+## Code Implementation
+
+The Python program demonstrates:
+
+* Storing values in variables
+* Performing basic arithmetic operations
+* Working with simple algebraic expressions
+* Using powers and exponents
+
+**External Libraries:** None
+
+## Why this matters for Quantum Computing
+
+Quantum Computing is built on mathematical foundations. Understanding Algebra will help in learning Complex Numbers, Vectors, Matrices, Quantum States, and other mathematical concepts used in Quantum Computing.
+
+## Learning Approach
+
+Algebra will be covered gradually over multiple days before progressing to advanced mathematical concepts required for Quantum Computing.
+
+## Day 01 Completed
+
+**Focus:** Basic Algebra Foundations
+
+**Next:** Continue with the next concepts in Algebra.
