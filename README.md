@@ -175,7 +175,7 @@ Fundamentals → Mathematics → Quantum Concepts → Quantum Computing → Algo
 
 To develop a comprehensive understanding of **quantum computing and allied quantum technologies**, combining mathematical foundations, theoretical concepts, programming knowledge, practical understanding, security implications, and emerging research.
 
-# Day 01: Algebra Basics
+## Day 01: Algebra Basics
 
 ## Objective
 
