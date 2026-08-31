@@ -217,3 +217,25 @@ Algebra will be covered gradually over multiple days before progressing to advan
 **Focus:** Basic Algebra Foundations
 
 **Next:** Continue with the next concepts in Algebra.
+
+## Day 02: Variables, Algebraic Expressions and Linear Equations
+
+## Focus
+
+The focus of Day 02 is to develop a stronger understanding of algebraic variables, expressions, and linear equations.
+
+After learning basic arithmetic operations and powers on Day 01, this day introduces the use of variables and mathematical expressions. Variables are essential in mathematics because they allow us to represent unknown or changing values.
+
+Understanding algebraic relationships is an important step toward learning the mathematical concepts required for Quantum Computing.
+
+## Topics Covered
+
+### Variables
+
+Variables are symbols used to represent values.
+
+For example:
+
+```text
+x = 10
+y = 5
