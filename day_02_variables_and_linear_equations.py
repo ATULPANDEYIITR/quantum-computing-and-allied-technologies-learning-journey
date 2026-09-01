@@ -1,4 +1,4 @@
-# Day 02: Variables, Algebraic Expressions and Linear Equations
+# Variables, Algebraic Expressions and Linear Equations
 # Mathematical Foundations for Quantum Computing
 
 print("==============================================")
