@@ -1,4 +1,4 @@
-# Day 01: Algebra Basics for Quantum Computing
+# Day 00: Algebra Basics for Quantum Computing
 
 print("DAY 01 - ALGEBRA BASICS FOR QUANTUM COMPUTING")
 
