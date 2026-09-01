@@ -31,208 +31,130 @@ This repository will document my learning day by day, with each stage building u
 * Understand the relationship between quantum computing, cybersecurity, artificial intelligence, and classical computing.
 * Develop the ability to read and understand introductory technical and research material related to quantum technologies.
 
-## What I will learn
+# 120-Day Quantum Computing & Allied Technologies Learning Journey
 
-### Mathematical foundations
-
-* Algebra
-* Complex numbers
-* Probability
-* Vectors and matrices
-* Linear algebra
-* Eigenvalues and eigenvectors
-* Vector spaces
-* Tensor products
-* Mathematical notation used in quantum mechanics
-
-### Quantum foundations
-
-* Quantum states
-* Qubits
-* Superposition
-* Measurement
-* Probability amplitudes
-* Quantum interference
-* Entanglement
-* Quantum operators
-* Unitary transformations
-* Density matrices
-* Quantum channels
-
-### Quantum computing
-
-* Quantum gates
-* Quantum circuits
-* Multi-qubit systems
-* Quantum measurements
-* Quantum circuit design
-* Quantum computation models
-* Quantum algorithms
-* Quantum complexity
-* Quantum advantage
-
-### Quantum algorithms
-
-* Deutsch algorithm
-* Deutsch-Jozsa algorithm
-* Bernstein-Vazirani algorithm
-* Simon's algorithm
-* Grover's algorithm
-* Shor's algorithm
-* Quantum Fourier Transform
-* Quantum phase estimation
-* Variational quantum algorithms
-
-### Quantum programming
-
-* Quantum programming concepts
-* Quantum circuit programming
-* Quantum simulators
-* Quantum software frameworks
-* Hybrid classical-quantum computing
-* Running and analyzing quantum circuits
-* Understanding quantum programming workflows
-
-### Quantum error correction
-
-* Quantum noise
-* Decoherence
-* Quantum errors
-* Error detection
-* Error correction
-* Quantum error-correcting codes
-* Fault tolerance
-* Surface codes
-
-### Quantum hardware
-
-* Superconducting qubits
-* Trapped-ion systems
-* Photonic quantum computing
-* Neutral-atom systems
-* Spin-based quantum computing
-* Quantum annealing
-* Quantum hardware limitations
-* Scalability and noise
-
-### Quantum communication and networking
-
-* Quantum communication
-* Quantum key distribution
-* Quantum teleportation
-* Entanglement distribution
-* Quantum networks
-* Quantum repeaters
-* Quantum internet
-
-### Quantum machine learning
-
-* Quantum-enhanced machine learning
-* Quantum data
-* Quantum feature maps
-* Quantum kernels
-* Variational quantum circuits
-* Quantum neural networks
-* Quantum optimization
-
-### Quantum simulation and optimization
-
-* Quantum simulation
-* Quantum chemistry
-* Hamiltonians
-* Quantum optimization
-* Variational methods
-* Quantum approximate optimization
-
-### Quantum security
-
-* Quantum cryptography
-* Quantum key distribution
-* Quantum threats to classical cryptography
-* Shor's algorithm and cryptographic implications
-* Grover's algorithm and cryptographic implications
-* Post-quantum cryptography
-* Quantum-resistant security
-
-### Allied quantum technologies
-
-* Quantum sensing
-* Quantum metrology
-* Quantum imaging
-* Quantum clocks
-* Quantum communication
-* Quantum networking
-* Quantum simulation
-* Quantum information science
-
-## Learning approach
-
-The repository will follow a progressive learning approach:
-
-Fundamentals → Mathematics → Quantum Concepts → Quantum Computing → Algorithms → Programming → Applications → Advanced Topics → Research
-
-## Long-term goal
-
-To develop a comprehensive understanding of **quantum computing and allied quantum technologies**, combining mathematical foundations, theoretical concepts, programming knowledge, practical understanding, security implications, and emerging research.
-
-## Day 01: Algebra Basics
-
-## Objective
-
-Begin building the mathematical foundation required for Quantum Computing by learning the fundamental concepts of Algebra.
-
-## Topics Covered
-
-* Numbers
-* Variables
-* Basic Arithmetic Operations
-* Addition
-* Subtraction
-* Multiplication
-* Division
-* Simple Algebraic Expressions
-* Powers and Exponents
-
-## Code Implementation
-
-The Python program demonstrates:
-
-* Storing values in variables
-* Performing basic arithmetic operations
-* Working with simple algebraic expressions
-* Using powers and exponents
-
-**External Libraries:** None
-
-## Why this matters for Quantum Computing
-
-Quantum Computing is built on mathematical foundations. Understanding Algebra will help in learning Complex Numbers, Vectors, Matrices, Quantum States, and other mathematical concepts used in Quantum Computing.
-
-## Learning Approach
-
-Algebra will be covered gradually over multiple days before progressing to advanced mathematical concepts required for Quantum Computing.
-
-## Day 01 Completed
-
-**Focus:** Basic Algebra Foundations
-
-**Next:** Continue with the next concepts in Algebra.
-
-## Day 02: Variables, Algebraic Expressions and Linear Equations
-
-## Focus
-
-The focus of Day 02 is to develop a stronger understanding of algebraic variables, expressions, and linear equations.
-
-After learning basic arithmetic operations and powers on Day 01, this day introduces the use of variables and mathematical expressions. Variables are essential in mathematics because they allow us to represent unknown or changing values.
-
-Understanding algebraic relationships is an important step toward learning the mathematical concepts required for Quantum Computing.
-
-## Topics Covered
-
-### Variables
-
-Variables are symbols used to represent values.
+| Day | Phase | Topic | Focus / Outcome |
+|---:|---|---|---|
+| 1 | Foundations | What is Quantum Computing? | Classical vs quantum computing, use cases |
+| 2 | Foundations | Bits, Logic & Computation | Bits, logic gates, Boolean computation |
+| 3 | Foundations | Limitations of Classical Computing | Complexity, scaling, NP-hard problems |
+| 4 | Foundations | Linear Algebra Basics | Vectors, matrices, notation |
+| 5 | Foundations | Complex Numbers | Complex arithmetic and quantum amplitudes |
+| 6 | Foundations | Probability Basics | Probability distributions and measurement |
+| 7 | Foundations | Linear Algebra for Quantum Computing | Vector spaces and inner products |
+| 8 | Foundations | Matrices & Matrix Operations | Matrix multiplication, inverse, transpose |
+| 9 | Foundations | Eigenvalues & Eigenvectors | Quantum-state applications |
+| 10 | Foundations | Tensor Products | Multi-system quantum states |
+| 11 | Physics | Introduction to Quantum Mechanics | Core principles and terminology |
+| 12 | Physics | Wave-Particle Duality | Quantum behavior |
+| 13 | Physics | Superposition | Quantum states and amplitudes |
+| 14 | Physics | Measurement | Observables, collapse, probabilities |
+| 15 | Physics | Uncertainty Principle | Quantum uncertainty |
+| 16 | Physics | Quantum States | State vectors and notation |
+| 17 | Physics | Hilbert Spaces | Mathematical framework |
+| 18 | Physics | Operators | Hermitian and unitary operators |
+| 19 | Physics | Time Evolution | Schrödinger equation concepts |
+| 20 | Physics | Quantum Harmonic Oscillator | Fundamental quantum model |
+| 21 | Quantum Computing | Qubits | Qubit representation |
+| 22 | Quantum Computing | Bloch Sphere | Visualizing single-qubit states |
+| 23 | Quantum Computing | Quantum Gates | X, Y, Z and identity gates |
+| 24 | Quantum Computing | Hadamard Gate | Creating superposition |
+| 25 | Quantum Computing | Phase Gates | S, T and phase operations |
+| 26 | Quantum Computing | Rotation Gates | RX, RY, RZ |
+| 27 | Quantum Computing | Controlled Gates | Controlled-X and controlled operations |
+| 28 | Quantum Computing | CNOT Gate | Entanglement and computation |
+| 29 | Quantum Computing | SWAP & Controlled-SWAP | Multi-qubit operations |
+| 30 | Quantum Computing | Quantum Circuits | Circuit construction fundamentals |
+| 31 | Quantum Computing | Entanglement | Bell states and non-classical correlations |
+| 32 | Quantum Computing | Bell States | Generate and measure Bell pairs |
+| 33 | Quantum Computing | No-Cloning Theorem | Why quantum information cannot be copied |
+| 34 | Quantum Computing | Quantum Teleportation | Quantum information transfer |
+| 35 | Quantum Computing | Superdense Coding | Quantum communication |
+| 36 | Programming | Python for Quantum Computing | Python fundamentals and NumPy |
+| 37 | Programming | NumPy Linear Algebra | Vectors, matrices and tensor operations |
+| 38 | Programming | Quantum SDK Landscape | Qiskit, Cirq, PennyLane and others |
+| 39 | Programming | Qiskit Fundamentals | Installation and first circuit |
+| 40 | Programming | Quantum Circuit Programming | Build and simulate circuits |
+| 41 | Programming | Quantum Measurement in Code | Shots, counts and probabilities |
+| 42 | Programming | Quantum Simulators | Statevector and shot-based simulation |
+| 43 | Programming | Circuit Visualization | Draw and analyze circuits |
+| 44 | Programming | Parameterized Circuits | Variables and rotations |
+| 45 | Programming | Quantum Programming Project | Build a multi-qubit circuit |
+| 46 | Algorithms | Quantum Algorithm Fundamentals | Algorithmic thinking |
+| 47 | Algorithms | Deutsch Algorithm | First quantum speedup |
+| 48 | Algorithms | Deutsch-Jozsa Algorithm | Oracle-based quantum computation |
+| 49 | Algorithms | Bernstein-Vazirani Algorithm | Hidden-string discovery |
+| 50 | Algorithms | Simon's Algorithm | Hidden-period problem |
+| 51 | Algorithms | Quantum Fourier Transform | QFT fundamentals |
+| 52 | Algorithms | QFT Implementation | Build QFT circuits |
+| 53 | Algorithms | Phase Estimation | Quantum phase estimation |
+| 54 | Algorithms | Grover's Algorithm | Quantum search |
+| 55 | Algorithms | Grover Implementation | Implement and optimize Grover |
+| 56 | Algorithms | Amplitude Amplification | Generalized quantum search |
+| 57 | Algorithms | Shor's Algorithm | Integer factorization concepts |
+| 58 | Algorithms | Shor Circuit Components | QFT, phase estimation and period finding |
+| 59 | Algorithms | Quantum Walks | Quantum walks and applications |
+| 60 | Algorithms | Algorithm Project | Implement multiple quantum algorithms |
+| 61 | Hardware | Quantum Hardware Overview | How quantum computers are built |
+| 62 | Hardware | Superconducting Qubits | Josephson junctions and circuits |
+| 63 | Hardware | Trapped-Ion Quantum Computing | Ion traps and laser control |
+| 64 | Hardware | Neutral-Atom Computing | Optical trapping and atom arrays |
+| 65 | Hardware | Photonic Quantum Computing | Photons as qubits |
+| 66 | Hardware | Spin Qubits | Semiconductor quantum systems |
+| 67 | Hardware | Topological Quantum Computing | Majorana-based concepts |
+| 68 | Hardware | Quantum Control | Pulses, calibration and control |
+| 69 | Hardware | Quantum Interconnects | Networking quantum processors |
+| 70 | Hardware | Hardware Comparison | Compare major quantum architectures |
+| 71 | NISQ | NISQ Era | Noisy intermediate-scale quantum computing |
+| 72 | NISQ | Quantum Noise | Sources and models of noise |
+| 73 | NISQ | Decoherence | T1, T2 and environmental effects |
+| 74 | NISQ | Quantum Error Mitigation | Reduce errors without full correction |
+| 75 | NISQ | Zero-Noise Extrapolation | Practical error mitigation |
+| 76 | NISQ | Readout Error Mitigation | Measurement-error correction |
+| 77 | NISQ | Variational Quantum Circuits | Parameterized quantum computation |
+| 78 | NISQ | VQE | Variational Quantum Eigensolver |
+| 79 | NISQ | VQE Implementation | Solve an optimization/chemistry problem |
+| 80 | NISQ | QAOA | Quantum Approximate Optimization Algorithm |
+| 81 | NISQ | QAOA Implementation | Solve a combinatorial optimization problem |
+| 82 | QML | Quantum Machine Learning | QML landscape and concepts |
+| 83 | QML | Quantum Data Encoding | Basis, angle and amplitude encoding |
+| 84 | QML | Quantum Feature Maps | Encode classical data into quantum states |
+| 85 | QML | Quantum Kernels | Kernel methods with quantum circuits |
+| 86 | QML | Variational Quantum Classifiers | Quantum classification |
+| 87 | QML | Quantum Neural Networks | QNN fundamentals |
+| 88 | QML | Quantum Generative Models | Quantum generative learning |
+| 89 | QML | Hybrid Quantum-Classical ML | Classical + quantum workflows |
+| 90 | QML | QML Project | Build an end-to-end QML model |
+| 91 | Error Correction | Quantum Errors | Bit-flip and phase-flip errors |
+| 92 | Error Correction | Classical vs Quantum Error Correction | Why quantum correction differs |
+| 93 | Error Correction | Three-Qubit Bit-Flip Code | Basic QEC |
+| 94 | Error Correction | Three-Qubit Phase-Flip Code | Phase error correction |
+| 95 | Error Correction | Stabilizer Formalism | Mathematical framework |
+| 96 | Error Correction | Surface Codes | Leading QEC architecture |
+| 97 | Error Correction | Fault-Tolerant Computing | Fault-tolerance concepts |
+| 98 | Error Correction | Logical Qubits | Physical vs logical qubits |
+| 99 | Error Correction | Threshold Theorem | Error thresholds |
+| 100 | Error Correction | QEC Simulation | Simulate a basic error-correction system |
+| 101 | Cryptography | Classical Cryptography | Encryption and public-key systems |
+| 102 | Cryptography | Quantum Cryptography | Quantum security concepts |
+| 103 | Cryptography | BB84 Protocol | Quantum key distribution |
+| 104 | Cryptography | E91 Protocol | Entanglement-based QKD |
+| 105 | Cryptography | Quantum Attacks | Shor and cryptographic threats |
+| 106 | Cryptography | Post-Quantum Cryptography | PQC fundamentals |
+| 107 | Cryptography | Lattice-Based Cryptography | Modern PQC approach |
+| 108 | Cryptography | Quantum-Safe Security | Migration and security strategy |
+| 109 | Quantum Networking | Quantum Communication | Quantum information networks |
+| 110 | Quantum Networking | Quantum Repeaters | Long-distance quantum communication |
+| 111 | Quantum Networking | Entanglement Distribution | Distributed quantum systems |
+| 112 | Quantum Networking | Quantum Internet | Architecture and challenges |
+| 113 | Advanced | Quantum Simulation | Simulating physical systems |
+| 114 | Advanced | Quantum Chemistry | Molecular and materials simulation |
+| 115 | Advanced | Quantum Optimization | Advanced optimization applications |
+| 116 | Advanced | Quantum Finance | Portfolio, pricing and risk applications |
+| 117 | Advanced | Quantum Sensing | Quantum-enhanced measurement |
+| 118 | Advanced | Quantum Benchmarking | Quantum volume, fidelity and performance |
+| 119 | Advanced | Quantum Research & Industry Landscape | Research papers, hardware, startups and industry |
+| 120 | Capstone | Final Quantum Computing Project | Design, implement, document and publish an end-to-end project |
 
 For example:
 
