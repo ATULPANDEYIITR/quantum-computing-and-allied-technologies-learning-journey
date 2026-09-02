@@ -1,4 +1,3 @@
-```python
 """
 BITS, LOGIC & COMPUTATION
 =========================
@@ -4560,5 +4559,3 @@ This is the central relationship between bits, logic, and computation.
 print("\n" + "=" * 80)
 print("END OF PROGRAM")
 print("=" * 80)
-```
-
