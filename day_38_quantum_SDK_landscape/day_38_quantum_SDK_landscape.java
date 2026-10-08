@@ -1,499 +1,601 @@
-"use strict";
-
 /*
- * Quantum SDK Landscape
+ * QuantumSdkLandscape.java
  *
- * This Node.js program models a quantum SDK selection and interoperability
- * layer. It deliberately avoids npm dependencies so that the architecture
- * can be executed locally while still representing distinctions between
- * Qiskit, Cirq, PennyLane, pytket/TKET, Amazon Braket, CUDA-Q, and Microsoft
- * QDK/Q#.
+ * Enterprise-oriented quantum SDK landscape model.
  *
- * The JavaScript-specific perspective is event-driven: a circuit execution
- * emits lifecycle events, and an asynchronous scheduler evaluates workloads
- * against SDK capabilities.
+ * Compile:
+ *   javac QuantumSdkLandscape.java
+ *
+ * Run:
+ *   java QuantumSdkLandscape
  */
 
-const { EventEmitter } = require("node:events");
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
-const SDK = Object.freeze({
-  QISKIT: "Qiskit",
-  CIRQ: "Cirq",
-  PENNYLANE: "PennyLane",
-  PYTKET: "pytket / TKET",
-  BRAKET: "Amazon Braket SDK",
-  CUDA_Q: "CUDA-Q",
-  QDK: "Microsoft QDK / Q#"
-});
+public class QuantumSdkLandscape {
 
-const sdkCatalog = [
-  {
-    name: SDK.QISKIT,
-    organization: "IBM",
-    languages: ["Python"],
-    abstractions: ["circuit", "transpilation", "cloud execution"],
-    workloads: ["general circuits", "hardware compilation", "cloud execution", "research"],
-    differentiable: false,
-    compiler: true,
-    hardware: true,
-    cloud: true,
-    simulation: true,
-    strengths: [
-      "circuit construction and transpilation",
-      "IBM hardware integration",
-      "primitive-oriented sampling and expectation-value workflows"
-    ],
-    tradeoffs: [
-      "provider APIs and service packages evolve independently",
-      "hardware results depend heavily on backend-aware compilation"
-    ]
-  },
-  {
-    name: SDK.CIRQ,
-    organization: "Google Quantum AI",
-    languages: ["Python"],
-    abstractions: ["moment-oriented circuit"],
-    workloads: ["general circuits", "hardware compilation", "research"],
-    differentiable: false,
-    compiler: true,
-    hardware: true,
-    cloud: false,
-    simulation: true,
-    strengths: [
-      "explicit qubit and moment control",
-      "research-oriented circuit representation",
-      "hardware-aware experiments"
-    ],
-    tradeoffs: [
-      "strongest fit is circuit research rather than generic cloud orchestration",
-      "Google-specific hardware workflows may require additional components"
-    ]
-  },
-  {
-    name: SDK.PENNYLANE,
-    organization: "Xanadu",
-    languages: ["Python"],
-    abstractions: ["quantum functions", "automatic differentiation"],
-    workloads: ["QML", "variational algorithms", "research", "hybrid computing"],
-    differentiable: true,
-    compiler: true,
-    hardware: true,
-    cloud: false,
-    simulation: true,
-    strengths: [
-      "differentiable quantum programming",
-      "quantum machine learning",
-      "hybrid optimization",
-      "multi-backend device abstraction"
-    ],
-    tradeoffs: [
-      "gradient execution cost depends on device and differentiation method",
-      "device-specific features are not uniformly portable"
-    ]
-  },
-  {
-    name: SDK.PYTKET,
-    organization: "Quantinuum",
-    languages: ["Python API", "C++ compiler core"],
-    abstractions: ["compiler", "intermediate representation"],
-    workloads: ["hardware compilation", "optimization", "research"],
-    differentiable: false,
-    compiler: true,
-    hardware: true,
-    cloud: false,
-    simulation: true,
-    strengths: [
-      "architecture-aware compilation",
-      "routing and placement",
-      "optimization passes",
-      "interoperability extensions"
-    ],
-    tradeoffs: [
-      "primarily a compilation and interoperability layer",
-      "provider access may be supplied through extension packages"
-    ]
-  },
-  {
-    name: SDK.BRAKET,
-    organization: "AWS",
-    languages: ["Python"],
-    abstractions: ["provider-neutral circuit", "cloud task", "hybrid job"],
-    workloads: ["cloud execution", "general circuits", "research"],
-    differentiable: false,
-    compiler: false,
-    hardware: true,
-    cloud: true,
-    simulation: true,
-    strengths: [
-      "managed multi-provider cloud access",
-      "hybrid jobs",
-      "AWS infrastructure integration"
-    ],
-    tradeoffs: [
-      "cloud, region, queue, permissions, and cost affect execution",
-      "target capabilities vary across providers"
-    ]
-  },
-  {
-    name: SDK.CUDA_Q,
-    organization: "NVIDIA",
-    languages: ["C++", "Python"],
-    abstractions: ["hybrid kernel", "GPU/QPU execution"],
-    workloads: ["GPU simulation", "hybrid computing", "hardware compilation", "research"],
-    differentiable: false,
-    compiler: true,
-    hardware: true,
-    cloud: false,
-    simulation: true,
-    strengths: [
-      "GPU-accelerated simulation",
-      "hybrid CPU/GPU/QPU execution",
-      "multiple simulator and hardware backends"
-    ],
-    tradeoffs: [
-      "benefits depend on access to suitable accelerated infrastructure",
-      "backend feature coverage varies"
-    ]
-  },
-  {
-    name: SDK.QDK,
-    organization: "Microsoft",
-    languages: ["Q#", "Python"],
-    abstractions: ["quantum language", "resource estimation", "cloud execution"],
-    workloads: ["resource estimation", "cloud execution", "research", "general circuits"],
-    differentiable: false,
-    compiler: true,
-    hardware: true,
-    cloud: true,
-    simulation: true,
-    strengths: [
-      "dedicated Q# programming language",
-      "resource estimation",
-      "simulation and debugging",
-      "Azure Quantum integration"
-    ],
-    tradeoffs: [
-      "Q# has a distinct programming model",
-      "cloud execution requires target/workspace configuration"
-    ]
-  }
-];
-
-class Gate {
-  constructor(name, qubits, parameter = null) {
-    if (!name || !Array.isArray(qubits) || qubits.length === 0) {
-      throw new TypeError("A gate requires a name and at least one target qubit");
-    }
-    this.name = name;
-    this.qubits = Object.freeze([...qubits]);
-    this.parameter = parameter;
-  }
-
-  toString() {
-    const parameter = this.parameter === null ? "" : `(${this.parameter.toFixed(4)})`;
-    return `${this.name}${parameter}[${this.qubits.map(q => `q${q}`).join(",")}]`;
-  }
-}
-
-class Circuit {
-  constructor(qubitCount) {
-    if (!Number.isInteger(qubitCount) || qubitCount <= 0) {
-      throw new RangeError("qubitCount must be a positive integer");
-    }
-    this.qubitCount = qubitCount;
-    this.gates = [];
-  }
-
-  addGate(name, ...qubits) {
-    const parameters =
-      qubits.length > 0 && typeof qubits[qubits.length - 1] === "object"
-        ? qubits.pop()
-        : {};
-
-    if (qubits.some(q => !Number.isInteger(q) || q < 0 || q >= this.qubitCount)) {
-      throw new RangeError("Gate contains an invalid qubit index");
+    enum Workload {
+        GENERAL_CIRCUIT,
+        HARDWARE_COMPILATION,
+        QML,
+        CLOUD_EXECUTION,
+        GPU_SIMULATION,
+        RESOURCE_ESTIMATION,
+        RESEARCH
     }
 
-    if (new Set(qubits).size !== qubits.length) {
-      throw new Error("A gate cannot target the same qubit twice");
-    }
-
-    this.gates.push(new Gate(name, qubits, parameters.parameter ?? null));
-    return this;
-  }
-
-  depth() {
-    const availability = Array(this.qubitCount).fill(0);
-
-    for (const gate of this.gates) {
-      const layer = Math.max(...gate.qubits.map(q => availability[q])) + 1;
-      for (const q of gate.qubits) {
-        availability[q] = layer;
-      }
-    }
-
-    return Math.max(0, ...availability);
-  }
-
-  twoQubitGateCount() {
-    return this.gates.filter(gate => gate.qubits.length === 2).length;
-  }
-
-  parameterCount() {
-    return this.gates.filter(gate => gate.parameter !== null).length;
-  }
-
-  describe() {
-    return this.gates.map((gate, i) => `  ${String(i + 1).padStart(2, "0")}: ${gate}`).join("\n");
-  }
-}
-
-class QuantumExecution extends EventEmitter {
-  constructor(circuit, sdk) {
-    super();
-    this.circuit = circuit;
-    this.sdk = sdk;
-    this.status = "created";
-    this.result = null;
-  }
-
-  async run(shots = 1000) {
-    if (!Number.isInteger(shots) || shots <= 0) {
-      throw new RangeError("shots must be a positive integer");
-    }
-
-    this.status = "queued";
-    this.emit("queued", { sdk: this.sdk.name, shots });
-
-    await new Promise(resolve => setTimeout(resolve, 10));
-
-    this.status = "running";
-    this.emit("running", {
-      sdk: this.sdk.name,
-      gateCount: this.circuit.gates.length
-    });
-
-    await new Promise(resolve => setTimeout(resolve, 10));
-
-    if (
-      this.circuit.qubitCount === 2 &&
-      this.circuit.gates.map(g => g.name).join(",") === "H,CX"
+    record SdkProfile(
+        String name,
+        String organization,
+        List<String> languages,
+        Set<Workload> workloads,
+        boolean differentiable,
+        boolean compiler,
+        boolean hardware,
+        boolean cloud,
+        boolean simulator,
+        List<String> strengths,
+        List<String> tradeoffs
     ) {
-      const zeros = Math.floor(shots / 2);
-      const ones = shots - zeros;
-      this.result = { "00": zeros, "11": ones };
-    } else {
-      this.result = { unsupported: shots };
+        SdkProfile {
+            Objects.requireNonNull(name);
+            Objects.requireNonNull(organization);
+            languages = List.copyOf(languages);
+            workloads = Set.copyOf(workloads);
+            strengths = List.copyOf(strengths);
+            tradeoffs = List.copyOf(tradeoffs);
+        }
     }
 
-    this.status = "completed";
-    this.emit("completed", { result: this.result });
-    return this.result;
-  }
-}
+    record WorkloadRequest(
+        String name,
+        Workload workload,
+        boolean requiresDifferentiation,
+        boolean requiresGpu,
+        boolean requiresCloud,
+        boolean requiresCompiler,
+        boolean requiresResourceEstimation
+    ) {}
 
-function bellCircuit() {
-  return new Circuit(2)
-    .addGate("H", 0)
-    .addGate("CX", 0, 1);
-}
+    record Recommendation(
+        SdkProfile sdk,
+        int score,
+        List<String> reasons
+    ) {}
 
-function variationalCircuit(theta) {
-  return new Circuit(3)
-    .addGate("RY", 0, { parameter: theta })
-    .addGate("RY", 1, { parameter: theta / 2 })
-    .addGate("RY", 2, { parameter: -theta })
-    .addGate("CX", 0, 1)
-    .addGate("CX", 1, 2);
-}
-
-function workloadScore(sdk, workload) {
-  let score = 0;
-  const reasons = [];
-
-  if (sdk.workloads.includes(workload.type)) {
-    score += 4;
-    reasons.push("workload alignment");
-  }
-
-  if (workload.differentiable) {
-    score += sdk.differentiable ? 5 : -3;
-    reasons.push(sdk.differentiable
-      ? "native differentiable programming"
-      : "not primarily differentiable");
-  }
-
-  if (workload.gpu) {
-    if (sdk.name === SDK.CUDA_Q) {
-      score += 6;
-      reasons.push("GPU-oriented simulation/hybrid execution");
+    enum GateType {
+        H,
+        RX,
+        RY,
+        CNOT
     }
-  }
 
-  if (workload.cloud) {
-    score += sdk.cloud ? 4 : -1;
-    reasons.push(sdk.cloud ? "managed cloud execution" : "no primary cloud orchestration layer");
-  }
+    record Gate(
+        GateType type,
+        List<Integer> qubits,
+        Double parameter
+    ) {
+        Gate {
+            if (qubits.isEmpty()) {
+                throw new IllegalArgumentException("A gate needs at least one qubit");
+            }
 
-  if (workload.compiler) {
-    score += sdk.compiler ? 5 : -1;
-    reasons.push(sdk.compiler ? "compiler-oriented capabilities" : "not compiler-centric");
-  }
+            if (qubits.stream().distinct().count() != qubits.size()) {
+                throw new IllegalArgumentException(
+                    "A gate cannot target the same qubit more than once"
+                );
+            }
 
-  if (workload.resourceEstimation) {
-    score += sdk.name === SDK.QDK ? 6 : -1;
-    reasons.push(
-      sdk.name === SDK.QDK
-        ? "dedicated resource-estimation workflow"
-        : "resource estimation is not the primary differentiator"
-    );
-  }
-
-  return { score, reasons };
-}
-
-function recommend(workload) {
-  return sdkCatalog
-    .map(sdk => ({ sdk, ...workloadScore(sdk, workload) }))
-    .sort((a, b) => b.score - a.score || a.sdk.name.localeCompare(b.sdk.name));
-}
-
-async function demonstrateEventDrivenExecution() {
-  console.log("\nEVENT-DRIVEN CIRCUIT EXECUTION");
-  console.log("=".repeat(78));
-
-  const circuit = bellCircuit();
-  const execution = new QuantumExecution(circuit, sdkCatalog.find(s => s.name === SDK.QISKIT));
-
-  execution.on("queued", event => {
-    console.log(`queued -> ${event.sdk}, shots=${event.shots}`);
-  });
-
-  execution.on("running", event => {
-    console.log(`running -> ${event.gateCount} gates`);
-  });
-
-  execution.on("completed", event => {
-    console.log(`completed -> ${JSON.stringify(event.result)}`);
-  });
-
-  await execution.run(1000);
-}
-
-function printLandscape() {
-  console.log("QUANTUM SDK LANDSCAPE");
-  console.log("=".repeat(78));
-
-  for (const sdk of sdkCatalog) {
-    console.log(`\n${sdk.name} | ${sdk.organization}`);
-    console.log(`Languages: ${sdk.languages.join(", ")}`);
-    console.log(`Abstractions: ${sdk.abstractions.join(", ")}`);
-    console.log(`Workloads: ${sdk.workloads.join(", ")}`);
-    console.log(`Differentiable: ${sdk.differentiable}`);
-    console.log(`Compiler: ${sdk.compiler}`);
-    console.log(`Hardware: ${sdk.hardware}`);
-    console.log(`Cloud: ${sdk.cloud}`);
-    console.log(`Simulation: ${sdk.simulation}`);
-    console.log("Strengths:");
-    sdk.strengths.forEach(item => console.log(`  - ${item}`));
-    console.log("Trade-offs:");
-    sdk.tradeoffs.forEach(item => console.log(`  - ${item}`));
-  }
-}
-
-function printCircuitExamples() {
-  console.log("\nCIRCUIT MODELS");
-  console.log("=".repeat(78));
-
-  const bell = bellCircuit();
-  console.log("\nBell circuit:");
-  console.log(bell.describe());
-  console.log(`Depth: ${bell.depth()}`);
-  console.log(`Two-qubit gates: ${bell.twoQubitGateCount()}`);
-
-  const ansatz = variationalCircuit(Math.PI / 3);
-  console.log("\nParameterized variational circuit:");
-  console.log(ansatz.describe());
-  console.log(`Depth: ${ansatz.depth()}`);
-  console.log(`Parameterized gates: ${ansatz.parameterCount()}`);
-}
-
-function printRecommendations() {
-  console.log("\nWORKLOAD SELECTION");
-  console.log("=".repeat(78));
-
-  const workloads = [
-    {
-      name: "Variational quantum machine learning",
-      type: "QML",
-      differentiable: true
-    },
-    {
-      name: "Architecture-aware circuit optimization",
-      type: "hardware compilation",
-      compiler: true
-    },
-    {
-      name: "Managed multi-provider execution",
-      type: "cloud execution",
-      cloud: true
-    },
-    {
-      name: "GPU-accelerated simulation",
-      type: "GPU simulation",
-      gpu: true
-    },
-    {
-      name: "Fault-tolerant resource estimation",
-      type: "resource estimation",
-      resourceEstimation: true
+            qubits = List.copyOf(qubits);
+        }
     }
-  ];
 
-  for (const workload of workloads) {
-    console.log(`\n${workload.name}`);
-    for (const recommendation of recommend(workload).slice(0, 3)) {
-      console.log(
-        `  ${recommendation.sdk.name.padEnd(24)} ` +
-        `score=${String(recommendation.score).padStart(2)} ` +
-        recommendation.reasons.join("; ")
-      );
+    static final class QuantumCircuit {
+        private final int qubitCount;
+        private final List<Gate> gates = new ArrayList<>();
+
+        QuantumCircuit(int qubitCount) {
+            if (qubitCount <= 0) {
+                throw new IllegalArgumentException(
+                    "A circuit must contain at least one qubit"
+                );
+            }
+            this.qubitCount = qubitCount;
+        }
+
+        QuantumCircuit add(
+            GateType type,
+            Double parameter,
+            int... qubits
+        ) {
+            List<Integer> targets = new ArrayList<>();
+
+            for (int qubit : qubits) {
+                if (qubit < 0 || qubit >= qubitCount) {
+                    throw new IllegalArgumentException(
+                        "Qubit " + qubit + " does not exist"
+                    );
+                }
+                targets.add(qubit);
+            }
+
+            gates.add(new Gate(type, targets, parameter));
+            return this;
+        }
+
+        int depth() {
+            int[] availability = new int[qubitCount];
+
+            for (Gate gate : gates) {
+                int layer = 0;
+
+                for (int qubit : gate.qubits()) {
+                    layer = Math.max(layer, availability[qubit]);
+                }
+
+                layer++;
+
+                for (int qubit : gate.qubits()) {
+                    availability[qubit] = layer;
+                }
+            }
+
+            int result = 0;
+            for (int layer : availability) {
+                result = Math.max(result, layer);
+            }
+
+            return result;
+        }
+
+        long twoQubitGateCount() {
+            return gates.stream()
+                .filter(gate -> gate.qubits().size() == 2)
+                .count();
+        }
+
+        long parameterizedGateCount() {
+            return gates.stream()
+                .filter(gate -> gate.parameter() != null)
+                .count();
+        }
+
+        List<Gate> gates() {
+            return List.copyOf(gates);
+        }
     }
-  }
+
+    static final class Repository {
+        private final List<SdkProfile> profiles;
+
+        Repository() {
+            profiles = List.of(
+                new SdkProfile(
+                    "Qiskit",
+                    "IBM",
+                    List.of("Python"),
+                    EnumSet.of(
+                        Workload.GENERAL_CIRCUIT,
+                        Workload.HARDWARE_COMPILATION,
+                        Workload.CLOUD_EXECUTION,
+                        Workload.RESEARCH
+                    ),
+                    false,
+                    true,
+                    true,
+                    true,
+                    true,
+                    List.of(
+                        "circuit construction",
+                        "transpilation",
+                        "IBM hardware integration",
+                        "primitive-oriented execution"
+                    ),
+                    List.of(
+                        "provider-specific APIs evolve separately from the core SDK",
+                        "hardware performance depends strongly on transpilation"
+                    )
+                ),
+                new SdkProfile(
+                    "Cirq",
+                    "Google Quantum AI",
+                    List.of("Python"),
+                    EnumSet.of(
+                        Workload.GENERAL_CIRCUIT,
+                        Workload.HARDWARE_COMPILATION,
+                        Workload.RESEARCH
+                    ),
+                    false,
+                    true,
+                    true,
+                    false,
+                    true,
+                    List.of(
+                        "moment-oriented circuit representation",
+                        "hardware-aware research",
+                        "explicit qubit control"
+                    ),
+                    List.of(
+                        "cloud orchestration is not its primary abstraction",
+                        "Google hardware workflows may require additional components"
+                    )
+                ),
+                new SdkProfile(
+                    "PennyLane",
+                    "Xanadu",
+                    List.of("Python"),
+                    EnumSet.of(
+                        Workload.QML,
+                        Workload.GENERAL_CIRCUIT,
+                        Workload.RESEARCH
+                    ),
+                    true,
+                    true,
+                    true,
+                    false,
+                    true,
+                    List.of(
+                        "automatic differentiation",
+                        "quantum machine learning",
+                        "variational algorithms",
+                        "hybrid optimization"
+                    ),
+                    List.of(
+                        "gradient computation can require additional device executions",
+                        "backend capabilities vary"
+                    )
+                ),
+                new SdkProfile(
+                    "pytket / TKET",
+                    "Quantinuum",
+                    List.of("Python API", "C++ compiler core"),
+                    EnumSet.of(
+                        Workload.HARDWARE_COMPILATION,
+                        Workload.GENERAL_CIRCUIT,
+                        Workload.RESEARCH
+                    ),
+                    false,
+                    true,
+                    true,
+                    false,
+                    true,
+                    List.of(
+                        "routing",
+                        "placement",
+                        "optimization",
+                        "interoperability"
+                    ),
+                    List.of(
+                        "primarily a compiler and circuit transformation layer",
+                        "provider integrations can be separate extensions"
+                    )
+                ),
+                new SdkProfile(
+                    "Amazon Braket SDK",
+                    "AWS",
+                    List.of("Python"),
+                    EnumSet.of(
+                        Workload.CLOUD_EXECUTION,
+                        Workload.GENERAL_CIRCUIT,
+                        Workload.RESEARCH
+                    ),
+                    false,
+                    false,
+                    true,
+                    true,
+                    true,
+                    List.of(
+                        "multi-provider cloud access",
+                        "hybrid jobs",
+                        "AWS infrastructure integration"
+                    ),
+                    List.of(
+                        "cloud execution introduces cost and region constraints",
+                        "provider capabilities are not identical"
+                    )
+                ),
+                new SdkProfile(
+                    "CUDA-Q",
+                    "NVIDIA",
+                    List.of("C++", "Python"),
+                    EnumSet.of(
+                        Workload.GPU_SIMULATION,
+                        Workload.HARDWARE_COMPILATION,
+                        Workload.GENERAL_CIRCUIT,
+                        Workload.RESEARCH
+                    ),
+                    false,
+                    true,
+                    true,
+                    false,
+                    true,
+                    List.of(
+                        "GPU-accelerated simulation",
+                        "hybrid CPU/GPU/QPU workflows",
+                        "multiple backends"
+                    ),
+                    List.of(
+                        "accelerated infrastructure is needed to exploit its strongest advantages",
+                        "backend capabilities vary"
+                    )
+                ),
+                new SdkProfile(
+                    "Microsoft QDK / Q#",
+                    "Microsoft",
+                    List.of("Q#", "Python"),
+                    EnumSet.of(
+                        Workload.RESOURCE_ESTIMATION,
+                        Workload.CLOUD_EXECUTION,
+                        Workload.GENERAL_CIRCUIT,
+                        Workload.RESEARCH
+                    ),
+                    false,
+                    true,
+                    true,
+                    true,
+                    true,
+                    List.of(
+                        "Q# language",
+                        "resource estimation",
+                        "simulation",
+                        "Azure Quantum integration"
+                    ),
+                    List.of(
+                        "Q# uses a distinct language model",
+                        "cloud execution requires target and workspace configuration"
+                    )
+                )
+            );
+        }
+
+        List<SdkProfile> all() {
+            return profiles;
+        }
+
+        Recommendation evaluate(
+            SdkProfile sdk,
+            WorkloadRequest request
+        ) {
+            int score = 0;
+            List<String> reasons = new ArrayList<>();
+
+            if (sdk.workloads().contains(request.workload())) {
+                score += 4;
+                reasons.add("workload alignment");
+            }
+
+            if (request.requiresDifferentiation()) {
+                if (sdk.differentiable()) {
+                    score += 6;
+                    reasons.add("differentiable programming");
+                } else {
+                    score -= 3;
+                }
+            }
+
+            if (request.requiresGpu()) {
+                if (sdk.name().equals("CUDA-Q")) {
+                    score += 7;
+                    reasons.add("GPU-oriented simulation");
+                }
+            }
+
+            if (request.requiresCloud()) {
+                if (sdk.cloud()) {
+                    score += 5;
+                    reasons.add("managed cloud execution");
+                } else {
+                    score -= 1;
+                }
+            }
+
+            if (request.requiresCompiler()) {
+                if (sdk.compiler()) {
+                    score += 5;
+                    reasons.add("compiler-oriented architecture");
+                } else {
+                    score -= 2;
+                }
+            }
+
+            if (request.requiresResourceEstimation()) {
+                if (sdk.name().equals("Microsoft QDK / Q#")) {
+                    score += 7;
+                    reasons.add("resource-estimation capability");
+                } else {
+                    score -= 1;
+                }
+            }
+
+            return new Recommendation(sdk, score, List.copyOf(reasons));
+        }
+
+        List<Recommendation> recommend(WorkloadRequest request) {
+            return profiles.stream()
+                .map(sdk -> evaluate(sdk, request))
+                .sorted(
+                    Comparator.comparingInt(Recommendation::score)
+                        .reversed()
+                        .thenComparing(r -> r.sdk().name())
+                )
+                .toList();
+        }
+    }
+
+    static QuantumCircuit createBellCircuit() {
+        return new QuantumCircuit(2)
+            .add(GateType.H, null, 0)
+            .add(GateType.CNOT, null, 0, 1);
+    }
+
+    static QuantumCircuit createVariationalCircuit(double theta) {
+        return new QuantumCircuit(3)
+            .add(GateType.RY, theta, 0)
+            .add(GateType.RY, theta / 2.0, 1)
+            .add(GateType.RY, -theta, 2)
+            .add(GateType.CNOT, null, 0, 1)
+            .add(GateType.CNOT, null, 1, 2);
+    }
+
+    static void printLandscape(Repository repository) {
+        System.out.println("QUANTUM SDK LANDSCAPE");
+        System.out.println("=".repeat(78));
+
+        for (SdkProfile sdk : repository.all()) {
+            System.out.println();
+            System.out.println(sdk.name() + " | " + sdk.organization());
+            System.out.println("Languages: " + String.join(", ", sdk.languages()));
+            System.out.println("Differentiable: " + sdk.differentiable());
+            System.out.println("Compiler: " + sdk.compiler());
+            System.out.println("Hardware: " + sdk.hardware());
+            System.out.println("Cloud: " + sdk.cloud());
+            System.out.println("Simulator: " + sdk.simulator());
+
+            System.out.println("Strengths:");
+            sdk.strengths().forEach(item ->
+                System.out.println("  - " + item)
+            );
+
+            System.out.println("Trade-offs:");
+            sdk.tradeoffs().forEach(item ->
+                System.out.println("  - " + item)
+            );
+        }
+    }
+
+    static void demonstrateCircuitModel() {
+        System.out.println("\nCIRCUIT MODEL");
+        System.out.println("=".repeat(78));
+
+        QuantumCircuit bell = createBellCircuit();
+
+        System.out.println("Bell circuit:");
+        System.out.println("  gates = " + bell.gates().size());
+        System.out.println("  depth = " + bell.depth());
+        System.out.println("  two-qubit gates = " + bell.twoQubitGateCount());
+
+        QuantumCircuit ansatz = createVariationalCircuit(Math.PI / 3.0);
+
+        System.out.println("\nParameterized ansatz:");
+        System.out.println("  gates = " + ansatz.gates().size());
+        System.out.println("  depth = " + ansatz.depth());
+        System.out.println("  parameterized gates = " + ansatz.parameterizedGateCount());
+    }
+
+    static void demonstrateRecommendations(Repository repository) {
+        System.out.println("\nENTERPRISE WORKLOAD SELECTION");
+        System.out.println("=".repeat(78));
+
+        List<WorkloadRequest> requests = List.of(
+            new WorkloadRequest(
+                "Variational quantum model",
+                Workload.QML,
+                true,
+                false,
+                false,
+                false,
+                false
+            ),
+            new WorkloadRequest(
+                "Architecture-aware compilation",
+                Workload.HARDWARE_COMPILATION,
+                false,
+                false,
+                false,
+                true,
+                false
+            ),
+            new WorkloadRequest(
+                "Managed cloud experiment",
+                Workload.CLOUD_EXECUTION,
+                false,
+                false,
+                true,
+                false,
+                false
+            ),
+            new WorkloadRequest(
+                "GPU simulation",
+                Workload.GPU_SIMULATION,
+                false,
+                true,
+                false,
+                false,
+                false
+            ),
+            new WorkloadRequest(
+                "Resource estimation",
+                Workload.RESOURCE_ESTIMATION,
+                false,
+                false,
+                false,
+                false,
+                true
+            )
+        );
+
+        for (WorkloadRequest request : requests) {
+            System.out.println("\n" + request.name());
+
+            repository.recommend(request)
+                .stream()
+                .limit(3)
+                .forEach(recommendation ->
+                    System.out.println(
+                        "  " +
+                        String.format(
+                            "%-24s score=%2d  %s",
+                            recommendation.sdk().name(),
+                            recommendation.score(),
+                            recommendation.reasons().isEmpty()
+                                ? "general compatibility"
+                                : recommendation.reasons().get(0)
+                        )
+                    )
+                );
+        }
+    }
+
+    static void demonstrateFailureHandling() {
+        System.out.println("\nVALIDATION");
+        System.out.println("=".repeat(78));
+
+        try {
+            new QuantumCircuit(2).add(GateType.CNOT, null, 0, 2);
+        } catch (IllegalArgumentException error) {
+            System.out.println(
+                "Invalid qubit rejected: " + error.getMessage()
+            );
+        }
+
+        try {
+            new QuantumCircuit(2).add(GateType.CNOT, null, 1, 1);
+        } catch (IllegalArgumentException error) {
+            System.out.println(
+                "Duplicate target rejected: " + error.getMessage()
+            );
+        }
+
+        /*
+         * Enterprise code should keep circuit validation separate from
+         * provider authentication and execution policy. A circuit can be
+         * structurally valid but still fail because a target backend does not
+         * support its gates, topology, dynamic-circuit features, shot limits,
+         * or execution mode.
+         */
+    }
+
+    public static void main(String[] args) {
+        Repository repository = new Repository();
+
+        printLandscape(repository);
+        demonstrateCircuitModel();
+        demonstrateRecommendations(repository);
+        demonstrateFailureHandling();
+    }
 }
-
-function demonstrateValidation() {
-  console.log("\nVALIDATION AND FAILURE MODES");
-  console.log("=".repeat(78));
-
-  try {
-    new Circuit(2).addGate("CX", 0, 2);
-  } catch (error) {
-    console.log(`Invalid qubit rejected: ${error.message}`);
-  }
-
-  try {
-    new Circuit(2).addGate("CX", 1, 1);
-  } catch (error) {
-    console.log(`Duplicate target rejected: ${error.message}`);
-  }
-
-  try {
-    new QuantumExecution(bellCircuit(), sdkCatalog[0]).run(0);
-  } catch (error) {
-    console.log(`Invalid shot count rejected: ${error.message}`);
-  }
-}
-
-async function main() {
-  printLandscape();
-  printCircuitExamples();
-  printRecommendations();
-  demonstrateValidation();
-  await demonstrateEventDrivenExecution();
-}
-
-main().catch(error => {
-  console.error(`Execution failed: ${error.message}`);
-  process.exitCode = 1;
-});
